@@ -83,6 +83,7 @@ public class TransferenciaServiceTests
 	[Fact]
 	public async Task Transferencia_DestinoNaoExiste_MensagemFalhaDesinoInvalido()
 	{
+		// Arrange
 		var context = GetContext();
 
 		context.Clientes.Add(new Cliente { Id = Guid.NewGuid(), Nome = "Origem", NumeroConta = "44444-1", Saldo = 1000 });
@@ -97,8 +98,10 @@ public class TransferenciaServiceTests
 			Valor = 50
 		};
 
+		// Act
 		var resultado = await service.RealizarTransferencia(dto);
 
+		// Assert
 		Assert.Equal("falha", resultado.Status);
 		Assert.Equal("Conta de origem ou destino não encontrada.", resultado.MensagemStatus);
 	}
@@ -106,6 +109,7 @@ public class TransferenciaServiceTests
 	[Fact]
 	public async Task Transferencia_QuandoSaldoInsuficiente_ExceptionSaldo()
 	{
+		// Arrange
 		var context = GetContext();
 
 		context.Clientes.AddRange(
@@ -123,10 +127,68 @@ public class TransferenciaServiceTests
 			Valor = 100 // maior que saldo
 		};
 
+		// Act
 		var resultado = await service.RealizarTransferencia(dto);
 
+		// Assert
 		Assert.Equal("falha", resultado.Status);
 		Assert.Equal("Saldo insuficiente na conta de origem.", resultado.MensagemStatus);
 
 	}
+
+	[Fact]
+	public async Task Transferencias_DeveBloquearConcorrencia_UsandoLock()
+	{
+		// Arrange
+		var context = GetContext();
+		context.Clientes.AddRange(
+					new Cliente { Id = Guid.NewGuid(), Nome = "ContaA", NumeroConta = "12345-1", Saldo = 1000 },
+					new Cliente { Id = Guid.NewGuid(), Nome = "ContaB", NumeroConta = "67890-1", Saldo = 1000 },
+					new Cliente { Id = Guid.NewGuid(), Nome = "ContaC", NumeroConta = "54321-1", Saldo = 0 }
+				);
+		context.SaveChanges();
+
+		var service = new TransferenciaService(context);
+		var dto1 = new TransferenciaDTO
+		{
+			NumeroContaOrigem = "12345-1",
+			NumeroContaDestino = "67890-1",
+			Valor = 800
+		};
+		var dto2 = new TransferenciaDTO
+		{
+			NumeroContaOrigem = "12345-1",
+			NumeroContaDestino = "54321-1",
+			Valor = 500
+		};
+
+		// Act (duas chamadas simultâneas)
+		var task1 = Task.Run(() =>
+		{
+			//Thread.Sleep(50); // Simula atraso proposital para criar competição
+			return service.RealizarTransferencia(dto1);
+		});
+
+		var task2 = Task.Run(() =>
+		{
+			Thread.Sleep(50);
+			return service.RealizarTransferencia(dto2);
+		});
+
+		await Task.WhenAll(task1, task2);
+
+		var resultado1 = task1.Result;
+		var resultado2 = task2.Result;
+
+		// Assert: Apenas uma deve ter sucesso
+		Assert.True(
+			(resultado1.Status == "sucesso" && resultado2.Status == "falha") ||
+			(resultado1.Status == "falha" && resultado2.Status == "sucesso")
+		);
+
+		// E saldo final deve ser correto
+		var conta = context.Clientes.First(c => c.NumeroConta == "12345-1");
+		Assert.True(conta.Saldo == 200);
+	}
+
 }
