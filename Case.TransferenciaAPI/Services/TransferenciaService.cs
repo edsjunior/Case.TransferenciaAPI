@@ -70,6 +70,16 @@ namespace Case.TransferenciaAPI.Services
 						transferencia.MensagemStatus = "Saldo insuficiente na conta de origem.";
 						transferencia.Status = "falha";
 					}
+					else if (request.Valor < 0.01m || request.Valor > 10000)
+					{
+						transferencia.MensagemStatus = "Valor da transferência deve estar entre 0.01 e 10.000.";
+						transferencia.Status = "falha";
+					}
+					else if (request.NumeroContaOrigem == request.NumeroContaDestino)
+					{
+						transferencia.MensagemStatus = "Transferência não pode ser feita para a mesma conta.";
+						transferencia.Status = "falha";
+					}
 					else
 					{
 						origem.Saldo -= request.Valor;
