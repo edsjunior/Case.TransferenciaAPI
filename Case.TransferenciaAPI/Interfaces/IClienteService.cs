@@ -10,7 +10,6 @@ namespace Case.TransferenciaAPI.Interfaces
 		Task<Cliente> BuscarPorNumeroContaAsync(string numeroConta);
 		Task<Cliente> AtualizarClienteAsync(Guid id, ClienteDTO request);
 		Task<bool> ExcluirClienteAsync(Guid id);
-		Task<bool> ValidarSaldoSuficienteAsync(int numeroConta, decimal valorTransferencia);
 
 	}
 }

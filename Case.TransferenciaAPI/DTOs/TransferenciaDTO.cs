@@ -13,9 +13,5 @@ namespace Case.TransferenciaAPI.DTOs
 
 		[Range(0.01, 10000, ErrorMessage = "Valor da transferência deve estar entre 0.01 e 10.000.")]
 		public decimal Valor { get; set; }
-		[Required]
-		public required String MensagemStatus { get; set; }
-		[Required]
-		public required String Status { get; set; }
 	}
 }

@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36221.1 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Case.TransferenciaAPI", "Case.TransferenciaAPI\Case.TransferenciaAPI.csproj", "{5B29E90B-3AA6-4337-BE0F-033631701C27}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Case.TransferenciaAPI.Teste", "Case.TransferenciaAPI.Teste\Case.TransferenciaAPI.Teste.csproj", "{FBB9BE21-C64D-4D85-919A-B6536C4097E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{5B29E90B-3AA6-4337-BE0F-033631701C27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B29E90B-3AA6-4337-BE0F-033631701C27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B29E90B-3AA6-4337-BE0F-033631701C27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBB9BE21-C64D-4D85-919A-B6536C4097E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBB9BE21-C64D-4D85-919A-B6536C4097E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBB9BE21-C64D-4D85-919A-B6536C4097E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBB9BE21-C64D-4D85-919A-B6536C4097E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
