@@ -1,4 +1,4 @@
-# API de Transferências Bancárias - Case Itaú
+# API de Transferências Bancárias - Case Stackspot
 
 Projeto desenvolvido em .NET 8 que simula transferências entre contas bancárias.
 
@@ -14,7 +14,7 @@ Projeto desenvolvido em .NET 8 que simula transferências entre contas bancária
 1. Clone este repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/nome-do-repo.git
+git clone https://github.com/edsjunior/Case.TransferenciaAPI.git
 cd nome-do-repo
 ```
 
@@ -37,7 +37,7 @@ dotnet run --project Case.TransferenciaAPI
 http://localhost:5000/swagger
 ```
 
-> A porta pode variar — verifique o terminal ou console do Visual Studio para confirmar.
+> A porta pode variar - verifique o terminal ou console do Visual Studio para confirmar.
 
 ---
 
