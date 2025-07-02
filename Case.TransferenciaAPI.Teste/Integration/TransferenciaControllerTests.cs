@@ -107,7 +107,7 @@ public class TransferenciaControllerTests : IClassFixture<WebApplicationFactory<
 
 		var dto = new TransferenciaDTO
 		{
-			NumeroContaOrigem = "99999-1", // inexistente
+			NumeroContaOrigem = "99999-1",
 			NumeroContaDestino = "22222-1",
 			Valor = 100
 		};
@@ -144,5 +144,48 @@ public class TransferenciaControllerTests : IClassFixture<WebApplicationFactory<
 		Assert.Equal("Conta de origem ou destino não encontrada.", content.MensagemStatus);
 	}
 
+	[Fact]
+	public async Task Post_Transferencia_MesmaConta_DeveRetornarUnprocessableEntity()
+	{
+		var client = _factory.CreateClient();
+
+		var dto = new TransferenciaDTO
+		{
+			NumeroContaOrigem = "22222-1",
+			NumeroContaDestino = "22222-1",
+			Valor = 100
+		};
+
+		var response = await client.PostAsJsonAsync("/api/v1/transferencias", dto);
+
+		var content = await response.Content.ReadFromJsonAsync<Transferencia>();
+
+		Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+		Assert.NotNull(content);
+		Assert.Equal("falha", content!.Status);
+		Assert.Equal("Transferência não pode ser feita para a mesma conta.", content.MensagemStatus);
+	}
+
+	[Fact]
+	public async Task Post_Transferencia_ValorExcedente_DeveRetornarUnprocessableEntity()
+	{
+		var client = _factory.CreateClient();
+
+		var dto = new TransferenciaDTO
+		{
+			NumeroContaOrigem = "11111-1",
+			NumeroContaDestino = "22222-1",
+			Valor = -1
+		};
+
+		var response = await client.PostAsJsonAsync("/api/v1/transferencias", dto);
+
+		var content = await response.Content.ReadFromJsonAsync<Transferencia>();
+
+		Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+		Assert.NotNull(content);
+		Assert.Equal("falha", content!.Status);
+		Assert.Equal("Valor da transferência deve estar entre 0.01 e 10.000.", content.MensagemStatus);
+	}
 }
 
