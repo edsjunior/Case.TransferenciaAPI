@@ -6,7 +6,7 @@ using Case.TransferenciaAPI.Interfaces;
 namespace Case.TransferenciaAPI.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/clientes")]
 public class ClienteController : ControllerBase
 {
 	private readonly IClienteService _clienteService;
@@ -17,65 +17,82 @@ public class ClienteController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Post([FromBody] ClienteDTO request)
+	public async Task<IResult> Post([FromBody] ClienteDTO request)
 	{
 		if (!ModelState.IsValid)
 		{
-			return BadRequest(ModelState);
+			return TypedResults.BadRequest(ModelState);
 		}
 
 
 		var cliente = await _clienteService.CadastrarClienteAsync(request);
-		return CreatedAtAction(nameof(GetByNumeroConta), new { numeroConta = cliente.NumeroConta }, cliente);
+		return TypedResults.CreatedAtRoute(
+				routeName: "GetByNumeroConta",
+				routeValues: new { numeroConta = cliente.NumeroConta },
+				value: cliente
+			);
+
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> Get()
+	public async Task<IResult> Get()
 	{
 		var clientes = await _clienteService.ListarClientesAsync();
-		return Ok(clientes);
+		return TypedResults.Ok(clientes);
 	}
 
-	[HttpGet("{numeroConta}")]
-	public async Task<IActionResult> GetByNumeroConta(string numeroConta)
+	[HttpGet("{numeroConta}", Name = "GetByNumeroConta")]
+	public async Task<IResult> GetByNumeroConta(string numeroConta)
 	{
-		if (string.IsNullOrWhiteSpace(numeroConta))
+		try
 		{
-			return BadRequest("Número da conta não pode ser nulo ou vazio.");
+			var cliente = await _clienteService.BuscarPorNumeroContaAsync(numeroConta);
+			return TypedResults.Ok(cliente);
 		}
-		var cliente = await _clienteService.BuscarPorNumeroContaAsync(numeroConta);
-		if (cliente == null)
+		catch (KeyNotFoundException)
 		{
-			return NotFound($"Cliente com número de conta {numeroConta} não encontrado.");
+			return TypedResults.NotFound($"Cliente não encontrado pela conta {numeroConta}.");
 		}
-		return Ok(cliente);
+		catch (Exception ex)
+		{
+			return TypedResults.Problem(
+				detail: $"Erro ao obter Cliente: {ex.Message}",
+				statusCode: StatusCodes.Status500InternalServerError
+			);
+		}
 	}
 
 	[HttpPut("{id}")]
-	public async Task<IActionResult> Put(Guid id, [FromBody] ClienteDTO request)
+	public async Task<IResult> Put(Guid id, [FromBody] ClienteDTO request)
 	{
 		if (!ModelState.IsValid)
 		{
-			return BadRequest(ModelState);
+			return TypedResults.BadRequest(ModelState);
 		}
 
-		var clienteAtualizado = await _clienteService.AtualizarClienteAsync(id, request);
-		if (clienteAtualizado == null)
+		try
 		{
-			return NotFound($"Cliente com ID {id} não encontrado.");
+			var clienteAtualizado = await _clienteService.AtualizarClienteAsync(id, request);
+			return TypedResults.Ok(clienteAtualizado);
 		}
-		return Ok(clienteAtualizado);
+		catch (KeyNotFoundException)
+		{
+			return TypedResults.NotFound($"Cliente com ID {id} não encontrado.");
+		}
+		catch (Exception ex)
+		{
+			return TypedResults.Problem(
+				detail: $"Erro ao atualizar cliente: {ex.Message}",
+				statusCode: StatusCodes.Status500InternalServerError
+			);
+		}
 	}
 
 	[HttpDelete("{id}")]
-	public async Task<IActionResult> Delete(Guid id)
+	public async Task<IResult> Delete(Guid id)
 	{
-		var excluiu = await _clienteService.ExcluirClienteAsync(id);
-		if (!excluiu)
-		{
-			return NotFound($"Cliente com ID {id} não encontrado.");
-		}
-		return NoContent();
+		var excluido = await _clienteService.ExcluirClienteAsync(id);
+		return excluido ? TypedResults.NoContent() : TypedResults.NotFound($"Cliente com ID {id} não encontrado.");
 	}
 
 

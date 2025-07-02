@@ -7,8 +7,8 @@
 		public required String NumeroContaDestino { get; set; }
 		public decimal Valor { get; set; }
 		public DateTime DataTransferencia { get; set; }
-		public required string Status { get; set; }
-		public required string MensagemStatus { get; set; }
+		public string Status { get; set; }
+		public string MensagemStatus { get; set; }
 
 	}
 }

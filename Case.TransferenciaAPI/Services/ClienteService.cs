@@ -46,6 +46,10 @@ namespace Case.TransferenciaAPI.Services
 			{
 				throw new InvalidOperationException("Já existe um cliente cadastrado com o número de conta informado.");
 			}
+			if(request.Saldo < 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(request.Saldo), "O saldo não pode ser negativo.");
+			}
 
 			var cliente = new Cliente
 			{
@@ -74,12 +78,6 @@ namespace Case.TransferenciaAPI.Services
 		public async Task<IEnumerable<Cliente>> ListarClientesAsync()
 		{
 			return await _context.Clientes.ToListAsync();
-		}
-
-		public async Task<bool> ValidarSaldoSuficienteAsync(int numeroConta, decimal valorTransferencia)
-		{
-			var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.NumeroConta == numeroConta.ToString());
-			return cliente != null && cliente.Saldo >= valorTransferencia;
 		}
 	}
 }
